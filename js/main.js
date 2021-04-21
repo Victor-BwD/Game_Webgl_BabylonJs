@@ -10,20 +10,31 @@ function startGame(){
     engine = new BABYLON.Engine(canvas, true);//tell your engine to draw on this especific canvas
     scene = createScene();
     modifySettings();
-    engine.runRenderLoop(function(){//draw a scene multiple times when any change happened 
+    var tank = scene.getMeshByName("HeroTank");
+    var toRender = function () {//var to keep a function to draw a screen every tick
+        var yMovement = 0;
+        if (tank.position.y > 2){
+            yMovement = -2;
+        }
+        tank.moveWithCollisions(new BABYLON.Vector3(0, yMovement, 5));
         scene.render();
-    });
+    }
+    engine.runRenderLoop(toRender);
 }
 
 var createScene = function (){//most important function, this is called first to create a scene and start a game
     var scene = new BABYLON.Scene(engine);//create a scene object and assigned to this engine
     var ground = CreateGround(scene);//calls the function to create a ground
-    var camera = CreateFreeCamera(scene);
+    var freeCamera = CreateFreeCamera(scene);
+    var tank = createTank(scene);
+    var followCamera = createFollowCamera(scene, tank);
+    scene.activeCamera = followCamera;
+    createLights(scene);
     
 
     
 
-    var light0 = new BABYLON.DirectionalLight("dir0", new BABYLON.Vector3(-1, -1, 0), scene);
+    
     return scene;
 };
 
@@ -39,6 +50,11 @@ function CreateGround(scene){
     return ground;
 }
 
+function createLights(scene){
+    var light0 = new BABYLON.DirectionalLight("dir0", new BABYLON.Vector3(-1, -1, 0), scene);
+    var light1 = new BABYLON.DirectionalLight("dir1", new BABYLON.Vector3(-1, -1, 0), scene);
+}
+
 //function to create a camera
 function CreateFreeCamera(scene){
     var camera = new BABYLON.FreeCamera("freeCamera", new BABYLON.Vector3(0, 0, 0), scene);//create a free camera
@@ -52,6 +68,27 @@ function CreateFreeCamera(scene){
     camera.keysRight.push(68);
 
     return camera;
+}
+
+function createFollowCamera(scene, target){//camera to follow the tank
+    var camera = new BABYLON.FollowCamera("tankFollowCamera", target.position, scene, target);
+    camera.radius = 20;//how far from the object to follow
+    camera.heightOffset = 4;//how high above the objects to place the camera
+    camera.rotationOffSet = 100;//the viewing angle
+    camera.cameraAcceleration = 0.5;//how fast to move
+    camera.maxCameraSpeed = 50;//speed limit
+    return camera;
+}
+
+function createTank(scene){
+    var tank = new BABYLON.MeshBuilder.CreateBox("HeroTank", {height: 1, depth: 10, width: 6}, scene);
+    var tankMaterial = new BABYLON.StandardMaterial("TankMaterial", scene);
+    tankMaterial.diffuseColor = new BABYLON.Color3.Red;
+    tankMaterial.emissiveColor = new BABYLON.Color3.Blue;
+    tank.material = tankMaterial;
+
+    tank.position.y += 2;
+    return tank;
 }
 
 window.addEventListener("resize", function(){
