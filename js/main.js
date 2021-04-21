@@ -9,6 +9,7 @@ function startGame(){
     canvas = document.getElementById("renderCanvas");//get the canvas of index.html 
     engine = new BABYLON.Engine(canvas, true);//tell your engine to draw on this especific canvas
     scene = createScene();
+    modifySettings();
     engine.runRenderLoop(function(){//draw a scene multiple times when any change happened 
         scene.render();
     });
@@ -16,17 +17,71 @@ function startGame(){
 
 var createScene = function (){//most important function, this is called first to create a scene and start a game
     var scene = new BABYLON.Scene(engine);//create a scene object and assigned to this engine
-    scene.clearColor = new BABYLON.Color3(1, 0, 1);//color of the scene
-    var sphere = BABYLON.Mesh.CreateSphere("mySphere", 32, 2, scene);
-    var ground = BABYLON.Mesh.CreateGround("myGround", 20, 20, 50, scene);
-    var camera = new BABYLON.FreeCamera("myCamera", new BABYLON.Vector3(0, 1,-10), scene);
-    camera.attachControl(canvas);
-    var light = new BABYLON.PointLight("myPointLight", new BABYLON.Vector3(0, 10, 0), scene);
-    light.intensity = .5;
-    light.diffuse = new BABYLON.Color3(1, 0, 0);
+    var ground = CreateGround(scene);//calls the function to create a ground
+    var camera = CreateFreeCamera(scene);
+    
+
+    
+
+    var light0 = new BABYLON.DirectionalLight("dir0", new BABYLON.Vector3(-1, -1, 0), scene);
     return scene;
 };
+
+function CreateGround(scene){
+    var ground = new BABYLON.Mesh.CreateGroundFromHeightMap("ground", "images/hmap1.png", 2000, 2000, 20, 0, 1000, scene, false, OnGroundCreated);
+    function OnGroundCreated(){
+        var groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
+        groundMaterial.diffuseTexture = new BABYLON.Texture("images/grass.jpg", scene);
+        ground.material = groundMaterial;
+        ground.checkCollisions = true;
+    }
+
+    return ground;
+}
+
+function CreateFreeCamera(scene){
+    var camera = new BABYLON.FreeCamera("freeCamera", new BABYLON.Vector3(0, 0, 0), scene);
+    camera.attachControl(canvas);
+    camera.position.y = 50;
+    camera.checkCollisions = true;
+    camera.applyGravity = true;
+    camera.keysUp.push(87);
+    camera.keysLeft.push(65);
+    camera.keysDown.push(83);
+    camera.keysRight.push(68);
+
+    return camera;
+}
 
 window.addEventListener("resize", function(){
     engine.resize();//if you resize your browser this get called and resize your engine.
 });
+
+function modifySettings(){
+    scene.onPointerDown = function(){
+        if(!scene.alreadyLocked){//if alreadyLocked is false so call the function requestPointerLock
+            console.log("requesting");
+            canvas.requestPointerLock = canvas.requestPointerLock || canvas.msRequestPointerLock || canvas.mozRequestPointerLock || canvas.webkitRequestPointerLock;
+            canvas.requestPointerLock();
+        }else{
+            console.log("not requesting");//if true so dont
+        }
+        
+    }
+    //all of this to work in all types of browsers
+    document.addEventListener("pointerlockchange", pointerLockListener);
+    document.addEventListener("mspointerlockchange", pointerLockListener);
+    document.addEventListener("mozpointerlockchange", pointerLockListener);
+    document.addEventListener("webkitpointerlockchange", pointerLockListener);
+    
+    function pointerLockListener(){//function to see if i press mouse button
+        var element = document.mozPointerLockElement || document.webkitPointerLockElement || document.msPointerLockElement || document.pointerLockElement || null; //all types of browsers
+
+        if(element){//flag
+            scene.alreadyLocked = true;
+        }else{
+            scene.alreadyLocked = false;
+        }
+    }
+}
+
