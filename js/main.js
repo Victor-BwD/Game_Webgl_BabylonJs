@@ -28,20 +28,21 @@ var createScene = function (){//most important function, this is called first to
 };
 
 function CreateGround(scene){
-    var ground = new BABYLON.Mesh.CreateGroundFromHeightMap("ground", "images/hmap1.png", 2000, 2000, 20, 0, 1000, scene, false, OnGroundCreated);
-    function OnGroundCreated(){
-        var groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
-        groundMaterial.diffuseTexture = new BABYLON.Texture("images/grass.jpg", scene);
-        ground.material = groundMaterial;
-        ground.checkCollisions = true;
+    var ground = new BABYLON.Mesh.CreateGroundFromHeightMap("ground", "images/hmap1.png", 2000, 2000, 20, 0, 1000, scene, false, OnGroundCreated);//create a ground with a image
+    function OnGroundCreated(){//function to create a ground specs
+        var groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);//create a var to receive a texture
+        groundMaterial.diffuseTexture = new BABYLON.Texture("images/grass.jpg", scene);//texture
+        ground.material = groundMaterial;//ground receive a texture as material
+        ground.checkCollisions = true;//collisions
     }
 
     return ground;
 }
 
+//function to create a camera
 function CreateFreeCamera(scene){
-    var camera = new BABYLON.FreeCamera("freeCamera", new BABYLON.Vector3(0, 0, 0), scene);
-    camera.attachControl(canvas);
+    var camera = new BABYLON.FreeCamera("freeCamera", new BABYLON.Vector3(0, 0, 0), scene);//create a free camera
+    camera.attachControl(canvas);//control with directional arrows
     camera.position.y = 50;
     camera.checkCollisions = true;
     camera.applyGravity = true;
