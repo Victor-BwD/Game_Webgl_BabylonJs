@@ -3,6 +3,11 @@
 var canvas; //hold canvas
 var engine; //variable of objects that will deal with the low level with GL
 var scene; //contain all the objects you wish render
+var isWPressed = false;
+var isSPressed = false;
+var isAPressed = false;
+var isDPressed = false;
+
 document.addEventListener("DOMContentLoaded", startGame); //once the page is fully loaded perfom this function
 
 function startGame(){
@@ -12,11 +17,7 @@ function startGame(){
     modifySettings();
     var tank = scene.getMeshByName("HeroTank");
     var toRender = function () {//var to keep a function to draw a screen every tick
-        var yMovement = 0;
-        if (tank.position.y > 2){
-            yMovement = -2;
-        }
-        tank.moveWithCollisions(new BABYLON.Vector3(0, yMovement, 5));
+        tank.move();
         scene.render();
     }
     engine.runRenderLoop(toRender);
@@ -88,6 +89,28 @@ function createTank(scene){
     tank.material = tankMaterial;
 
     tank.position.y += 2;
+    tank.speed = 1;
+    tank.frontVector = new BABYLON.Vector3(0, 0, 1);
+    tank.move = function(){
+        var yMovement = 0;
+        if (tank.position.y > 2){
+            yMovement = -2;
+        }
+        if(isWPressed){
+            tank.moveWithCollisions(tank.frontVector.multiplyByFloats(tank.speed, tank.speed, tank.speed));
+        }
+        if(isSPressed){
+            tank.moveWithCollisions(tank.frontVector.multiplyByFloats(-1*tank.speed, -1*tank.speed, -1*tank.speed));
+        }
+        if(isAPressed){
+            tank.rotation.y -= .1;
+            tank.frontVector = new BABYLON.Vector3(Math.sin(tank.rotation.y), 0, Math.cos(tank.rotation.y));
+        }
+        if(isDPressed){
+            tank.rotation.y += .1;
+            tank.frontVector = new BABYLON.Vector3(Math.sin(tank.rotation.y), 0, Math.cos(tank.rotation.y));
+        }
+    }
     return tank;
 }
 
@@ -123,3 +146,32 @@ function modifySettings(){
     }
 }
 
+document.addEventListener("keydown", function(event){
+    if(event.key == 'w' || event.key == 'W'){
+        isWPressed = true;
+    }
+    if(event.key == 's' || event.key == 'S'){
+        isSPressed = true;
+    }
+    if(event.key == 'a' || event.key == 'A'){
+        isAPressed = true;
+    }
+    if(event.key == 'd' || event.key == 'D'){
+        isDPressed = true;
+    }
+})
+
+document.addEventListener("keyup", function(event){
+    if(event.key == 'w' || event.key == 'W'){
+        isWPressed = false;
+    }
+    if(event.key == 's' || event.key == 'S'){
+        isSPressed = false;
+    }
+    if(event.key == 'a' || event.key == 'A'){
+        isAPressed = false;
+    }
+    if(event.key == 'd' || event.key == 'D'){
+        isDPressed = false;
+    }
+})
