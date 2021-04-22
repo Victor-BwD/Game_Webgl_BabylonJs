@@ -90,25 +90,25 @@ function createTank(scene){
 
     tank.position.y += 2;
     tank.speed = 1;
-    tank.frontVector = new BABYLON.Vector3(0, 0, 1);
+    tank.frontVector = new BABYLON.Vector3(0, 0, 1);//define a front of tank
     tank.move = function(){
         var yMovement = 0;
         if (tank.position.y > 2){
             yMovement = -2;
         }
         if(isWPressed){
-            tank.moveWithCollisions(tank.frontVector.multiplyByFloats(tank.speed, tank.speed, tank.speed));
+            tank.moveWithCollisions(tank.frontVector.multiplyByFloats(tank.speed, tank.speed, tank.speed));//vector 3 to inclement 1 in each zone
         }
         if(isSPressed){
             tank.moveWithCollisions(tank.frontVector.multiplyByFloats(-1*tank.speed, -1*tank.speed, -1*tank.speed));
         }
         if(isAPressed){
             tank.rotation.y -= .1;
-            tank.frontVector = new BABYLON.Vector3(Math.sin(tank.rotation.y), 0, Math.cos(tank.rotation.y));
+            tank.frontVector = new BABYLON.Vector3(Math.sin(tank.rotation.y), 0, Math.cos(tank.rotation.y));//rotation tank
         }
         if(isDPressed){
             tank.rotation.y += .1;
-            tank.frontVector = new BABYLON.Vector3(Math.sin(tank.rotation.y), 0, Math.cos(tank.rotation.y));
+            tank.frontVector = new BABYLON.Vector3(Math.sin(tank.rotation.y), 0, Math.cos(tank.rotation.y));//rotation tank
         }
     }
     return tank;
@@ -138,7 +138,7 @@ function modifySettings(){
     function pointerLockListener(){//function to see if i press mouse button
         var element = document.mozPointerLockElement || document.webkitPointerLockElement || document.msPointerLockElement || document.pointerLockElement || null; //all types of browsers
 
-        if(element){//flag
+        if(element){//flag to see if mouse already locked
             scene.alreadyLocked = true;
         }else{
             scene.alreadyLocked = false;
@@ -146,7 +146,7 @@ function modifySettings(){
     }
 }
 
-document.addEventListener("keydown", function(event){
+document.addEventListener("keydown", function(event){//event listener to change the flag
     if(event.key == 'w' || event.key == 'W'){
         isWPressed = true;
     }
