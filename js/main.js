@@ -32,6 +32,12 @@ var createScene = function (){//most important function, this is called first to
     scene.activeCamera = followCamera;
     createLights(scene);
     
+    BABYLON.SceneLoader.ImportMesh("him", "models/Dude/", "dude.babylon", scene, onDudeImported); 
+
+     function onDudeImported(newMeshes, particleSystems, skeletons){
+        newMeshes[0].position = new BABYLON.Vector3(0, 0, 5);  // The original dude
+        scene.beginAnimation(skeletons[0], 0, 120, 1.0, true, 1.0);
+     }
 
     
 
