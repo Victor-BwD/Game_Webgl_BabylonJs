@@ -15,9 +15,13 @@ function startGame(){
     engine = new BABYLON.Engine(canvas, true);//tell your engine to draw on this especific canvas
     scene = createScene();
     modifySettings();
-    var tank = scene.getMeshByName("HeroTank");
+    var tank = scene.getMeshByName("heroTank");
     var toRender = function () {//var to keep a function to draw a screen every tick
         tank.move();
+        var heroDude = scene.getMeshByName("heroDude");
+        if(heroDude){
+            heroDude.move();
+        }
         scene.render();
     }
     engine.runRenderLoop(toRender);
@@ -31,15 +35,8 @@ var createScene = function (){//most important function, this is called first to
     var followCamera = createFollowCamera(scene, tank);
     scene.activeCamera = followCamera;
     createLights(scene);
-    
-    BABYLON.SceneLoader.ImportMesh("him", "models/Dude/", "dude.babylon", scene, onDudeImported); 
-
-     function onDudeImported(newMeshes, particleSystems, skeletons){
-        newMeshes[0].position = new BABYLON.Vector3(0, 0, 5);  // The original dude
-        scene.beginAnimation(skeletons[0], 0, 120, 1.0, true, 1.0);
-     }
-
-    
+    createHeroDude(scene);
+   
 
     
     return scene;
@@ -88,7 +85,7 @@ function createFollowCamera(scene, target){//camera to follow the tank
 }
 
 function createTank(scene){
-    var tank = new BABYLON.MeshBuilder.CreateBox("HeroTank", {height: 1, depth: 10, width: 6}, scene);
+    var tank = new BABYLON.MeshBuilder.CreateBox("heroTank", {height: 1, depth: 10, width: 6}, scene);
     var tankMaterial = new BABYLON.StandardMaterial("TankMaterial", scene);
     tankMaterial.diffuseColor = new BABYLON.Color3.Red;
     tankMaterial.emissiveColor = new BABYLON.Color3.Blue;
@@ -118,6 +115,27 @@ function createTank(scene){
         }
     }
     return tank;
+}
+
+function createHeroDude(scene){
+    BABYLON.SceneLoader.ImportMesh("him", "models/Dude/", "dude.babylon", scene, onDudeImported); 
+
+    function onDudeImported(newMeshes, particleSystems, skeletons){
+       newMeshes[0].position = new BABYLON.Vector3(0, 0, 5);  // The original dude
+       newMeshes[0].name = "heroDude";
+       var heroDude = newMeshes[0];
+       heroDude.scaling = new BABYLON.Vector3(.2, .2, .2);
+       scene.beginAnimation(skeletons[0], 0, 120, 1.0, true, 1.0);
+       heroDude.move = function(){
+           var tank = scene.getMeshByName("heroTank");
+           var direction = tank.position.subtract(this.position);
+           var dir = direction.normalize();
+           var alpha = Math.atan2(-1 * dir.x, -1 * dir.z);
+           this.rotation.y = alpha;
+       }
+    }
+
+   
 }
 
 window.addEventListener("resize", function(){
