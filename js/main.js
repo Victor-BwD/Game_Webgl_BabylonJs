@@ -125,13 +125,18 @@ function createHeroDude(scene){
        newMeshes[0].name = "heroDude";
        var heroDude = newMeshes[0];
        heroDude.scaling = new BABYLON.Vector3(.2, .2, .2);
+       heroDude.speed = 2;
        scene.beginAnimation(skeletons[0], 0, 120, 1.0, true, 1.0);
        heroDude.move = function(){
            var tank = scene.getMeshByName("heroTank");
            var direction = tank.position.subtract(this.position);
+           var distance = direction.length();
            var dir = direction.normalize();
            var alpha = Math.atan2(-1 * dir.x, -1 * dir.z);
            this.rotation.y = alpha;
+           if(distance > 30){
+            this.moveWithCollisions(dir.multiplyByFloats(this.speed, this.speed, this.speed));
+           }
        }
     }
 
