@@ -10,6 +10,31 @@ var isDPressed = false;
 
 document.addEventListener("DOMContentLoaded", startGame); //once the page is fully loaded perfom this function
 
+class Dude{
+    constructor(dudeMesh, speed){
+        this.dudeMesh = dudeMesh;
+        dudeMesh.Dude = this;
+        if(speed){
+            this.speed = speed;
+        }else{
+            this.speed = 1;
+        }
+        
+    }
+
+    move(){
+        var tank = scene.getMeshByName("heroTank");
+        var direction = tank.position.subtract(this.dudeMesh.position);
+        var distance = direction.length();
+        var dir = direction.normalize();
+        var alpha = Math.atan2(-1 * dir.x, -1 * dir.z);
+        this.dudeMesh.rotation.y = alpha;
+        if(distance > 30){
+            this.dudeMesh.moveWithCollisions(dir.multiplyByFloats(this.speed, this.speed, this.speed));
+        }
+    }
+}
+
 function startGame(){
     canvas = document.getElementById("renderCanvas");//get the canvas of index.html 
     engine = new BABYLON.Engine(canvas, true);//tell your engine to draw on this especific canvas
@@ -20,7 +45,7 @@ function startGame(){
         tank.move();
         var heroDude = scene.getMeshByName("heroDude");
         if(heroDude){
-            heroDude.move();
+            heroDude.Dude.move();
         }
         scene.render();
     }
@@ -127,21 +152,16 @@ function createHeroDude(scene){
        heroDude.scaling = new BABYLON.Vector3(.2, .2, .2);
        heroDude.speed = 2;
        scene.beginAnimation(skeletons[0], 0, 120, 1.0, true, 1.0);
-       heroDude.move = function(){
-           var tank = scene.getMeshByName("heroTank");
-           var direction = tank.position.subtract(this.position);
-           var distance = direction.length();
-           var dir = direction.normalize();
-           var alpha = Math.atan2(-1 * dir.x, -1 * dir.z);
-           this.rotation.y = alpha;
-           if(distance > 30){
-            this.moveWithCollisions(dir.multiplyByFloats(this.speed, this.speed, this.speed));
-           }
-       }
+
+       var hero = new Dude(heroDude, 2);
+     
     }
+}
 
    
-}
+
+
+
 
 window.addEventListener("resize", function(){
     engine.resize();//if you resize your browser this get called and resize your engine.
