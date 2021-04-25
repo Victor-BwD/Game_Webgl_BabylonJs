@@ -47,6 +47,12 @@ function startGame(){
         if(heroDude){
             heroDude.Dude.move();
         }
+
+        if(scene.dudes){//to all of the dudes come to me
+            for(var q = 0; q < scene.dudes.length; q++){
+                scene.dudes[q].Dude.move();
+            }
+        }
         scene.render();
     }
     engine.runRenderLoop(toRender);
@@ -142,7 +148,7 @@ function createTank(scene){
     return tank;
 }
 
-function createHeroDude(scene){
+function createHeroDude(scene){//function to create a dude
     BABYLON.SceneLoader.ImportMesh("him", "models/Dude/", "dude.babylon", scene, onDudeImported); 
 
     function onDudeImported(newMeshes, particleSystems, skeletons){
@@ -154,11 +160,51 @@ function createHeroDude(scene){
        scene.beginAnimation(skeletons[0], 0, 120, 1.0, true, 1.0);
 
        var hero = new Dude(heroDude, 2);
+
+       scene.dudes = [];
+       for(var q = 0; q < 10; q++){
+           scene.dudes[q] = DoClone(heroDude, skeletons, q);
+           scene.beginAnimation(scene.dudes[q].skeleton, 0, 120, true, 1.0);
+           var temp = new Dude(scene.dudes[q], 2);
+       }
      
     }
 }
 
-   
+ function DoClone(original, skeletons, id){
+     var myClone;
+
+     var xrand = Math.floor(Math.random() * 501) - 250;
+     var zrand = Math.floor(Math.random() * 501) - 250;
+
+    myClone = original.clone("clone_" + id);
+    myClone.position = new BABYLON.Vector3(xrand,0,zrand);
+    if(!skeletons){
+        return myClone;
+    }else{
+        if(!original.getChildren()){
+            myClone.skeletons = skeletons[0].clone("clone_" + id + "_skeletons");
+            return myClone;
+        }else{
+            if(skeletons.length == 1){//this means one skeleton controlling/animating all the children
+                var clonedSkeleton = skeletons[0].clone("clone_" + id + "_skeleton");
+                myClone.skeleton = clonedSkeleton;
+                var numChildren = myClone.getChildren().length;
+                for(var i = 0; i < numChildren; i++){
+                    myClone.getChildren()[i].skeleton = clonedSkeleton;
+                }
+                return myClone;
+
+            }else if(skeletons.length == original.getChildren().length){
+                for(var i = 0; i < myClone.getChildren().length; i++){
+                    myClone.getChildren()[i].skeleton = skeletons[i].clone("clone_" + id + "_skeleton_" + i);
+                }
+                return myClone;
+            }
+        }
+    }
+     return myClone;
+ }  
 
 
 
