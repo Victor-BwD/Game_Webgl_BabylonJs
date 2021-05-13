@@ -56,6 +56,13 @@ class Dude{
         bounder.scaling.x = lengthX * this.scaling;
         bounder.scaling.y = lengthY * this.scaling;
         bounder.scaling.z = lengthZ * this.scaling;
+
+        bounder.isVisible = false;
+
+        var bounderMaterial = new BABYLON.StandardMaterial("bounderMaterial", this.scene);
+        bounderMaterial.alpha = .5;
+        bounder.material = bounderMaterial;
+        bounder.checkCollisions = true;
     }
 
     CalculateBoundingBoxParameters(){
