@@ -11,15 +11,27 @@ var isDPressed = false;
 document.addEventListener("DOMContentLoaded", startGame); //once the page is fully loaded perfom this function
 
 class Dude{
-    constructor(dudeMesh, speed){
+    constructor(dudeMesh, speed, id, scene, scaling){
         this.dudeMesh = dudeMesh;
+        this.scene = scene;
+        this.id = id;
         dudeMesh.Dude = this;
         if(speed){
             this.speed = speed;
         }else{
             this.speed = 1;
         }
+        if(scaling){
+            this.scaling = scaling;
+            this.dudeMesh.scaling = new BABYLON.Vector3(this.scaling, this.scaling, this.scaling);
+        }else{
+            this.scaling = 1;
+        }
+        if(Dude.boundingBoxParameters == undefined){
+            Dude.boundingBoxParameters = CalculateBoundingBoxParameters();
+        }
         
+        this.createBoundingBox();
     }
 
     move(){
@@ -31,6 +43,66 @@ class Dude{
         this.dudeMesh.rotation.y = alpha;
         if(distance > 30){
             this.dudeMesh.moveWithCollisions(dir.multiplyByFloats(this.speed, this.speed, this.speed));
+        }
+    }
+
+    createBoundingBox(){
+        var lengthX = Dude.boundingBoxParameters.lengthX;
+        var lengthY = Dude.boundingBoxParameters.lengthY;
+        var lengthZ = Dude.boundingBoxParameters.lengthZ;
+
+        var bounder = new BABYLON.Mesh.CreateBox("bounder" + str(this.id), 1, this.scene);
+
+        bounder.scaling.x = lengthX * this.scaling;
+        bounder.scaling.y = lengthY * this.scaling;
+        bounder.scaling.z = lengthZ * this.scaling;
+    }
+
+    CalculateBoundingBoxParameters(){
+        var minX = 999999; var minY = 999999; var minZ = 999999;
+        var maxX = -99999; var maxY = -999999; var maxZ = -99999;
+
+        var children = this.dudeMesh.getChildren();
+
+        for(var i = 0; i < children.length; i++){
+            var position = new BABYLON.VertexData.ExtractFromGeometry(children[i]).position;
+            if(!positions) continue;
+
+            var index = 0;
+            for(var j = index; j < positions.length; j += 3){
+                if(positions[j] < minX){
+                    minX = positions[j];
+                }
+                if(positions[j] > maxX){
+                    maxX = positions[j];
+                }
+            }
+
+            var index = 1;
+            for(var j = index; j < positions.length; j += 3){
+                if(positions[j] < minX){
+                    minY = positions[j];
+                }
+                if(positions[j] > maxX){
+                    maxY = positions[j];
+                }
+            }
+
+            var index = 2;
+            for(var j = index; j < positions.length; j += 3){
+                if(positions[j] < minZ){
+                    minZ = positions[j];
+                }
+                if(positions[j] > maxZ){
+                    maxZ = positions[j];
+                }
+            }
+
+            var _lengthX = maxX - minX;
+            var _lengthY = maxY - minY;
+            var _lengthZ = maxZ - minZ;
+
+            return {lengthX : _lengthX, lengthY : _lengthY, lengthZ : _lengthZ};
         }
     }
 }
@@ -155,17 +227,15 @@ function createHeroDude(scene){//function to create a dude
        newMeshes[0].position = new BABYLON.Vector3(0, 0, 5);  // The original dude
        newMeshes[0].name = "heroDude";
        var heroDude = newMeshes[0];
-       heroDude.scaling = new BABYLON.Vector3(.2, .2, .2);
-       heroDude.speed = 2;
+      
        scene.beginAnimation(skeletons[0], 0, 120, 1.0, true, 1.0);
-
-       var hero = new Dude(heroDude, 2);
+       var hero = new Dude(heroDude, 2, -1, scene, .2);
 
        scene.dudes = [];
        for(var q = 0; q < 10; q++){
            scene.dudes[q] = DoClone(heroDude, skeletons, q);
            scene.beginAnimation(scene.dudes[q].skeleton, 0, 120, true, 1.0);
-           var temp = new Dude(scene.dudes[q], 2);
+           var temp = new Dude(scene.dudes[q], 2, q, scene, .2);
        }
      
     }
