@@ -28,7 +28,7 @@ class Dude{
             this.scaling = 1;
         }
         if(Dude.boundingBoxParameters == undefined){
-            Dude.boundingBoxParameters = CalculateBoundingBoxParameters();
+            Dude.boundingBoxParameters = this.CalculateBoundingBoxParameters();
         }
         
         this.createBoundingBox();
